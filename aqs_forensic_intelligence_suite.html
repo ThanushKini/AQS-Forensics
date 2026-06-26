@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQS Forensic Intelligence Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        :root {
+            --primary: #1e293b;
+            --accent: #d97706;
+            --bg-soft: #f8fafc;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-soft);
+            color: var(--primary);
+            scroll-behavior: smooth;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 1);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .section-fade {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .visible-section {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        canvas { cursor: crosshair; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Chosen Palette: Forensic Neutral (Slate, Navy, Amber, Cream) -->
+    <!-- Application Structure Plan: 
+        1. Navigation: Sidebar-style menu for modular exploration.
+        2. Dashboard Hero: Visualizes the "Forensic Gap" immediately using comparison metrics.
+        3. The Quantum Core: Explains physics laws (Hamiltonian, Entanglement) through interactive 'cards' that update central explanatory text.
+        4. Application Lab: A tabbed interface allowing users to simulate Toxicology, Ballistics, and Fingerprint sensing workflows.
+        5. Benchmarks: Dynamic Chart.js visualizations showing the 1000x sensitivity leap.
+        6. AI Verification: An interactive demo of how R² scores eliminate forensic doubt.
+        This structure was chosen to move from the 'Why' (Problem) to the 'How' (Physics) to the 'Result' (Application), catering to both decision-makers and technical experts.
+    -->
+    <!-- Visualization & Content Choices: 
+        1. Sensitivity & Speed -> Bar/Radar Charts -> Chart.js -> Direct comparison of AQS vs. GC-MS.
+        2. Hamiltonian Components -> Interactive HTML Cards -> Dynamic Text Updates -> Explaining base energy vs signal.
+        3. Zeeman Splitting -> Canvas-drawn line diagram -> JS Animation -> Visualizing magnetic energy shifts for Ballistics.
+        4. Wavelength Selection -> Slider Interaction -> Filter simulation -> Showing how QDs hide background noise for Fingerprints.
+        5. Spin Noise (T1) -> Canvas oscillation -> JS Frequency manipulation -> Representing drug 'rhythms' in Toxicology.
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="sticky top-0 z-50 glass-panel border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-slate-800 rounded flex items-center justify-center text-white font-bold">Q</div>
+            <span class="text-xl font-bold tracking-tight">AQS <span class="text-amber-600">Forensics</span></span>
+        </div>
+        <div class="hidden md:flex space-x-8 text-sm font-semibold uppercase tracking-wider">
+            <button onclick="showSection('hero')" class="nav-link active hover:text-amber-600 transition-colors">Overview</button>
+            <button onclick="showSection('physics')" class="nav-link hover:text-amber-600 transition-colors">The Physics</button>
+            <button onclick="showSection('lab')" class="nav-link hover:text-amber-600 transition-colors">The Lab</button>
+            <button onclick="showSection('benchmarks')" class="nav-link hover:text-amber-600 transition-colors">Performance</button>
+        </div>
+        <div class="text-xs text-slate-500 italic">v.2026.04 Secure Access</div>
+    </nav>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        
+        <!-- SECTION 1: HERO / OVERVIEW -->
+        <section id="hero" class="section-fade visible-section">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+                <div>
+                    <h1 class="text-5xl font-bold text-slate-900 leading-tight mb-6">Nanoscale Trace Detection in <span class="text-amber-600">High-Interference Scenes</span></h1>
+                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                        Traditional forensics is hitting a ceiling. Environmental interference, scene contamination, and the "one-shot" risk of destructive chemicals leave evidence invisible. Applied Quantum Sensing (AQS) uses sub-atomic particles as sensors to turn "unreadable" crime scenes into high-resolution maps of truth.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 min-w-[150px]">
+                            <div class="text-amber-600 font-bold text-2xl">1000x</div>
+                            <div class="text-xs uppercase text-slate-500 font-bold">Sensitivity Increase</div>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 min-w-[150px]">
+                            <div class="text-amber-600 font-bold text-2xl">&lt; 60s</div>
+                            <div class="text-xs uppercase text-slate-500 font-bold">Time to Result</div>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl shadow-sm border border-slate-100 flex-1 min-w-[150px]">
+                            <div class="text-amber-600 font-bold text-2xl">Zero</div>
+                            <div class="text-xs uppercase text-slate-500 font-bold">Evidence Destruction</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-900 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 text-slate-500 text-[10px] mono">LATENT SCANNER SIMULATION ACTIVE</div>
+                    <div class="chart-container">
+                        <canvas id="heroRadarChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <span class="inline-block px-3 py-1 bg-amber-500/20 text-amber-500 rounded-full text-xs font-bold uppercase">Quantum vs Classical Comparison</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl hover:shadow-md transition-shadow">
+                    <div class="mb-4 text-amber-600 font-bold">Environmental Interference</div>
+                    <p class="text-sm text-slate-600">Chemical noise from rain, dirt, or pollutants often drowns out traditional reagents. AQS provides atomic-level rejection of background noise.</p>
+                </div>
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl hover:shadow-md transition-shadow">
+                    <div class="mb-4 text-amber-600 font-bold">Irreversible Destruction</div>
+                    <p class="text-sm text-slate-600">Chemical tests like Ninhydrin consume the amino acids they detect. AQS is non-destructive, preserving samples for DNA profiling.</p>
+                </div>
+                <div class="p-6 bg-white border border-slate-200 rounded-2xl hover:shadow-md transition-shadow">
+                    <div class="mb-4 text-amber-600 font-bold">Visual Backgrounds</div>
+                    <p class="text-sm text-slate-600">Banknotes and foils reflect light that obscures dyes. Quantum Dots use bandgap tuning to glow in specific, narrow wavelengths.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE PHYSICS -->
+        <section id="physics" class="section-fade hidden-section">
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">The Hamiltonian Law of Sensing</h2>
+                <p class="text-slate-600">Accuracy is built on atomic constants, not machine calibration. We leverage the fundamental rules of sub-atomic physics to ensure forensic integrity.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Hamiltonian Card -->
+                <div class="cursor-pointer p-8 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-500 transition-all group" onclick="updatePhysicsInfo('hamiltonian')">
+                    <div class="text-xs mono text-slate-400 mb-2 uppercase">Core Equation</div>
+                    <div class="text-xl font-bold mb-4 group-hover:text-amber-600">H = Ĥ₀ + Ĥᵥ(t)</div>
+                    <p class="text-sm text-slate-500">The math rule calculating total system energy, ensuring zero drift over decades.</p>
+                </div>
+                <!-- Entanglement Card -->
+                <div class="cursor-pointer p-8 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-500 transition-all group" onclick="updatePhysicsInfo('entanglement')">
+                    <div class="text-xs mono text-slate-400 mb-2 uppercase">Precision Barrier</div>
+                    <div class="text-xl font-bold mb-4 group-hover:text-amber-600">Heisenberg Limit</div>
+                    <p class="text-sm text-slate-500">Achieving 1/n accuracy, identifying a specific drug metabolite from a single atom.</p>
+                </div>
+                <!-- Coherence Card -->
+                <div class="cursor-pointer p-8 rounded-2xl border-2 border-slate-200 bg-white hover:border-amber-500 transition-all group" onclick="updatePhysicsInfo('coherence')">
+                    <div class="text-xs mono text-slate-400 mb-2 uppercase">Ghost Probing</div>
+                    <div class="text-xl font-bold mb-4 group-hover:text-amber-600">Quantum Coherence</div>
+                    <p class="text-sm text-slate-500">Feeling chemical signatures waves through the environment without physical contact.</p>
+                </div>
+            </div>
+
+            <div id="physicsDisplay" class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm min-h-[300px] flex flex-col md:flex-row gap-8 items-center">
+                <div class="w-full md:w-1/2">
+                    <h3 id="physicsTitle" class="text-2xl font-bold mb-4 text-slate-800">Select a Quantum Law</h3>
+                    <div id="physicsDescription" class="text-slate-600 leading-relaxed space-y-4">
+                        <p>Interact with the cards above to explore how specific laws of quantum mechanics are applied to solve forensic bottlenecks.</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 flex justify-center">
+                    <div id="physicsVisual" class="w-full max-w-[300px] aspect-square bg-slate-50 rounded-2xl flex items-center justify-center relative overflow-hidden border border-slate-100">
+                        <!-- Dynamic visual elements will be injected here via JS -->
+                        <span class="text-slate-300 font-bold uppercase tracking-widest text-xs">Awaiting Input...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE LAB -->
+        <section id="lab" class="section-fade hidden-section">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Forensic Application Lab</h2>
+                    <p class="text-slate-600">Simulate advanced AQS diagnostic workflows for specialized forensic domains.</p>
+                </div>
+                <div class="flex bg-slate-200 p-1 rounded-xl">
+                    <button onclick="setLabTab('toxicology')" id="tab-toxicology" class="lab-tab px-6 py-2 rounded-lg font-semibold transition-all text-slate-600 hover:text-slate-900 active-tab bg-white text-slate-900 shadow-sm">Toxicology</button>
+                    <button onclick="setLabTab('ballistics')" id="tab-ballistics" class="lab-tab px-6 py-2 rounded-lg font-semibold transition-all text-slate-600 hover:text-slate-900">Ballistics</button>
+                    <button onclick="setLabTab('prints')" id="tab-prints" class="lab-tab px-6 py-2 rounded-lg font-semibold transition-all text-slate-600 hover:text-slate-900">Fingerprints</button>
+                </div>
+            </div>
+
+            <div id="labContent" class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <!-- LAB INTERFACE LEFT: CONTROLS -->
+                <div class="space-y-6">
+                    <div id="labContextBlock" class="p-6 bg-amber-50 border border-amber-100 rounded-2xl">
+                        <h4 id="labTitle" class="font-bold text-amber-900 mb-2">T₁ Relaxometry (Spin Noise)</h4>
+                        <p id="labIntro" class="text-sm text-amber-800 leading-relaxed">Detecting designer opioids by measuring the unique 'rhythm' of electron flips. Each drug batch has a unique spectral density.</p>
+                    </div>
+
+                    <div id="labControls" class="p-8 bg-white border border-slate-200 rounded-3xl space-y-6 shadow-sm">
+                        <!-- Content dynamic based on Tab -->
+                    </div>
+                </div>
+
+                <!-- LAB INTERFACE RIGHT: VISUALIZATION -->
+                <div class="bg-slate-900 rounded-3xl p-8 min-h-[500px] flex flex-col justify-between border-4 border-slate-800">
+                    <div class="flex justify-between items-start">
+                        <div class="text-xs mono text-green-500 flex items-center space-x-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            <span>REAL-TIME ODMR DATA STREAM</span>
+                        </div>
+                        <div id="labOutputVal" class="text-2xl mono text-white font-bold">--</div>
+                    </div>
+                    
+                    <div class="flex-grow flex items-center justify-center py-12">
+                        <canvas id="labCanvas" class="w-full"></canvas>
+                    </div>
+
+                    <div id="labMeta" class="grid grid-cols-2 gap-4">
+                        <div class="p-3 bg-slate-800 rounded-lg">
+                            <div class="text-[10px] text-slate-400 uppercase font-bold mb-1">Target Identity</div>
+                            <div id="targetID" class="text-sm text-white mono font-bold">SCANNING...</div>
+                        </div>
+                        <div class="p-3 bg-slate-800 rounded-lg">
+                            <div class="text-[10px] text-slate-400 uppercase font-bold mb-1">Confidence Score</div>
+                            <div id="confScore" class="text-sm text-white mono font-bold">R² 0.000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: BENCHMARKS -->
+        <section id="benchmarks" class="section-fade hidden-section">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-4xl font-bold mb-6">Moving From Chemical Estimation to <span class="text-amber-600">Atomic Certainty</span></h2>
+                <p class="text-lg text-slate-600">The performance leap between standard laboratory GC-MS units and portable Applied Quantum Sensing devices is not iterative—it is transformative.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="p-2 bg-slate-100 rounded-lg mr-3">
+                            <span class="text-xs font-bold">µg vs pg</span>
+                        </span>
+                        Sensitivity Benchmarks
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="sensitivityChart"></canvas>
+                    </div>
+                    <p class="mt-8 text-sm text-slate-500 italic">Sensitivity is measured in orders of magnitude of detectable mass (Picograms vs Micrograms).</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="p-2 bg-slate-100 rounded-lg mr-3">
+                            <span class="text-xs font-bold">HRs vs SECs</span>
+                        </span>
+                        Time-to-ID Efficiency
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                    <p class="mt-8 text-sm text-slate-500 italic">Total turnaround time from scene collection to definitive court-admissible identification.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl p-12 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-3xl -mr-32 -mt-32"></div>
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6">Implementation Roadmap 2026</h2>
+                        <ul class="space-y-6">
+                            <li class="flex items-start">
+                                <div class="w-8 h-8 bg-amber-500 text-slate-900 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">1</div>
+                                <div>
+                                    <h4 class="font-bold">Field Sweep (Wand Prototype)</h4>
+                                    <p class="text-slate-400 text-sm">Non-destructive mapping of contaminated scenes using portable NV-diamond probes.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-8 h-8 bg-amber-500 text-slate-900 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">2</div>
+                                <div>
+                                    <h4 class="font-bold">ID Verification (Smart QDs)</h4>
+                                    <p class="text-slate-400 text-sm">Deployment of RAFT-polymerized quantum dots for high-interference print recognition.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="w-8 h-8 bg-amber-500 text-slate-900 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">3</div>
+                                <div>
+                                    <h4 class="font-bold">Lab Deep Dive (Noise Spec)</h4>
+                                    <p class="text-slate-400 text-sm">High-throughput analysis of designer drugs using T₁ relaxation spectroscopy.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-8 bg-slate-800/50 rounded-2xl border border-white/10 text-center">
+                        <div class="text-4xl font-bold text-amber-500 mb-2">99.999%</div>
+                        <p class="text-slate-300 font-semibold mb-6 uppercase tracking-widest text-sm">Verification Integrity</p>
+                        <p class="text-sm text-slate-400 leading-relaxed italic">"The Hamiltonian Operator ensures that sensor drift never occurs, protecting evidence from technical failure or human bias."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-12">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
+            <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                <span class="font-bold text-slate-900">AQS FORENSICS</span>
+                <span>&copy; 2026 Forensic Proposal V.2026.04</span>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="hover:text-amber-600 transition-colors">Technical Specs</a>
+                <a href="#" class="hover:text-amber-600 transition-colors">Case Studies</a>
+                <a href="#" class="hover:text-amber-600 transition-colors">Contact Research</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // State Management
+        let currentTab = 'toxicology';
+        let labChart = null;
+        let physicsVisualTimer = null;
+
+        // Initialize Charts
+        window.onload = function() {
+            initHeroChart();
+            initLab('toxicology');
+            initBenchmarkCharts();
+        };
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-fade').forEach(el => {
+                el.classList.remove('visible-section');
+                el.classList.add('hidden-section');
+            });
+            const target = document.getElementById(sectionId);
+            target.classList.remove('hidden-section');
+            setTimeout(() => target.classList.add('visible-section'), 50);
+
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText.toLowerCase().includes(sectionId.replace('hero', 'overview')) || 
+                   btn.innerText.toLowerCase().includes(sectionId.replace('lab', 'lab')) ||
+                   btn.innerText.toLowerCase().includes(sectionId.replace('physics', 'physics')) ||
+                   btn.innerText.toLowerCase().includes(sectionId.replace('benchmarks', 'performance'))) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Radar Chart for Hero
+        function initHeroChart() {
+            const ctx = document.getElementById('heroRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Sensitivity', 'Speed', 'Non-Destructive', 'Background Rejection', 'Longevity', 'Portability'],
+                    datasets: [{
+                        label: 'Quantum (AQS)',
+                        data: [95, 90, 100, 95, 98, 85],
+                        fill: true,
+                        backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                        borderColor: '#d97706',
+                        pointBackgroundColor: '#d97706',
+                        borderWidth: 3
+                    }, {
+                        label: 'Classical (GC-MS)',
+                        data: [40, 20, 10, 30, 45, 15],
+                        fill: true,
+                        backgroundColor: 'rgba(100, 116, 139, 0.2)',
+                        borderColor: '#64748b',
+                        pointBackgroundColor: '#64748b',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#94a3b8', font: { size: 10 } },
+                            ticks: { display: false },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#ffffff', font: { size: 12 } } }
+                    }
+                }
+            });
+        }
+
+        // Physics Law Explainer
+        function updatePhysicsInfo(law) {
+            const title = document.getElementById('physicsTitle');
+            const desc = document.getElementById('physicsDescription');
+            const visual = document.getElementById('physicsVisual');
+
+            if (physicsVisualTimer) clearInterval(physicsVisualTimer);
+            visual.innerHTML = '';
+
+            const content = {
+                hamiltonian: {
+                    t: "The Hamiltonian (H = Ĥ₀ + Ĥᵥ)",
+                    d: "<p>The Hamiltonian operator determines the total energy of the quantum system. Ĥ₀ represents the base energy of the NV-diamond sensor, while Ĥᵥ represents the interaction with the external 'signal' from evidence.</p><p>Because it relies on fundamental atomic constants, the sensor never 'drifts' like classical mechanical sensors, ensuring legal integrity for decades.</p>",
+                    draw: (ctx) => {
+                        let y = 150;
+                        ctx.strokeStyle = '#d97706';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath(); ctx.moveTo(50, 150); ctx.lineTo(250, 150); ctx.stroke(); // Base level
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath(); ctx.moveTo(50, 100); ctx.lineTo(250, 100); ctx.stroke(); // Shifted level
+                        ctx.setLineDash([]);
+                        ctx.font = '10px mono'; ctx.fillStyle = '#64748b';
+                        ctx.fillText('Ĥ₀ (Base)', 200, 165);
+                        ctx.fillText('Ĥᵥ (Signal Interaction)', 160, 90);
+                    }
+                },
+                entanglement: {
+                    t: "Quantum Entanglement",
+                    d: "<p>By entangling particles, we break the classical precision barrier. Standard error follows 1/√n, but quantum error reaches the 1/n Heisenberg Limit.</p><p>This allows us to identify a specific drug metabolite even if only a single atom is present in a high-interference environment like a mud puddle.</p>",
+                    draw: (ctx) => {
+                        let angle = 0;
+                        physicsVisualTimer = setInterval(() => {
+                            ctx.clearRect(0, 0, 300, 300);
+                            ctx.beginPath();
+                            ctx.strokeStyle = 'rgba(217, 119, 6, 0.3)';
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(100 + Math.cos(angle)*10, 150 + Math.sin(angle)*10);
+                            ctx.lineTo(200 - Math.cos(angle)*10, 150 - Math.sin(angle)*10);
+                            ctx.stroke();
+                            ctx.fillStyle = '#1e293b';
+                            ctx.beginPath(); ctx.arc(100 + Math.cos(angle)*10, 150 + Math.sin(angle)*10, 8, 0, Math.PI*2); ctx.fill();
+                            ctx.beginPath(); ctx.arc(200 - Math.cos(angle)*10, 150 - Math.sin(angle)*10, 8, 0, Math.PI*2); ctx.fill();
+                            angle += 0.05;
+                        }, 30);
+                    }
+                },
+                coherence: {
+                    t: "Quantum Coherence",
+                    d: "<p>Coherence allows the sensor to exist in a superposition of states. It acts like a wave rippling through the environment, 'feeling' the chemical signature without physical contact.</p><p>This 'Ghost Probing' keeps evidence perfectly preserved for future laboratory re-testing or court display.</p>",
+                    draw: (ctx) => {
+                        let offset = 0;
+                        physicsVisualTimer = setInterval(() => {
+                            ctx.clearRect(0, 0, 300, 300);
+                            ctx.beginPath();
+                            ctx.strokeStyle = '#d97706';
+                            ctx.moveTo(0, 150);
+                            for(let x=0; x<300; x++) {
+                                ctx.lineTo(x, 150 + Math.sin(x*0.05 + offset) * 20);
+                            }
+                            ctx.stroke();
+                            offset += 0.1;
+                        }, 30);
+                    }
+                }
+            };
+
+            const selected = content[law];
+            title.innerText = selected.t;
+            desc.innerHTML = selected.d;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 300; canvas.height = 300;
+            visual.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            selected.draw(ctx);
+        }
+
+        // Lab Simulation Logic
+        function setLabTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.lab-tab').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+                if(btn.id === 'tab-' + tab) btn.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+            });
+            initLab(tab);
+        }
+
+        function initLab(tab) {
+            const controls = document.getElementById('labControls');
+            const title = document.getElementById('labTitle');
+            const intro = document.getElementById('labIntro');
+            const canvas = document.getElementById('labCanvas');
+            const ctx = canvas.getContext('2d');
+
+            if(window.labInterval) clearInterval(window.labInterval);
+
+            if(tab === 'toxicology') {
+                title.innerText = "T₁ Relaxometry (Spin Noise)";
+                intro.innerText = "Detecting designer drugs via electron spin flip rhythms. Bring the probe close to analyze spectral density.";
+                controls.innerHTML = `
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Probe Proximity (nm)</label>
+                    <input type="range" min="10" max="200" value="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateLab('toxicology', this.value)">
+                    <div class="flex justify-between text-[10px] text-slate-400 font-bold"><span>10nm</span><span>200nm</span></div>
+                `;
+                runToxicologySim(ctx);
+            } else if(tab === 'ballistics') {
+                title.innerText = "Zeeman Splitting (GSR Detection)";
+                intro.innerText = "Gunshot residue traces have magnetic fields that split the energy levels of our sensor. Measuring the distance reveals the powder type.";
+                controls.innerHTML = `
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Magnetic Field Intensity (B)</label>
+                    <input type="range" min="0" max="100" value="50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateLab('ballistics', this.value)">
+                    <div class="flex justify-between text-[10px] text-slate-400 font-bold"><span>0 Tesla</span><span>1.5 Tesla</span></div>
+                `;
+                runBallisticsSim(ctx);
+            } else if(tab === 'prints') {
+                title.innerText = "Quantum Dot Bandgap Tuning";
+                intro.innerText = "Selective adherence ignores dirt and oil. Tune the wavelength to hide background interference and reveal the print.";
+                controls.innerHTML = `
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Wavelength Selection (nm)</label>
+                    <input type="range" min="400" max="700" value="530" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600" oninput="updateLab('prints', this.value)">
+                    <div class="flex justify-between text-[10px] text-slate-400 font-bold"><span>Blue (400)</span><span>Red (700)</span></div>
+                `;
+                runPrintsSim(ctx);
+            }
+        }
+
+        function updateLab(tab, value) {
+            const output = document.getElementById('labOutputVal');
+            const targetID = document.getElementById('targetID');
+            const confScore = document.getElementById('confScore');
+
+            if(tab === 'toxicology') {
+                output.innerText = value + " nm";
+                const conf = (1 - (value/200)).toFixed(4);
+                confScore.innerText = "R² " + (0.9 + conf * 0.099).toFixed(4);
+                targetID.innerText = value < 50 ? "FENTANYL - BATCH #402" : "NOISE (ATMOSPHERIC)";
+            } else if(tab === 'ballistics') {
+                output.innerText = (value/10).toFixed(1) + " T";
+                confScore.innerText = "R² " + (0.9990 + (value/10000)).toFixed(4);
+                targetID.innerText = "LEAD/BARIUM DETECTED";
+                window.zeemanSplit = value;
+            } else if(tab === 'prints') {
+                output.innerText = value + " nm";
+                const fit = Math.abs(value - 530);
+                confScore.innerText = "R² " + (1 - (fit/300)).toFixed(4);
+                targetID.innerText = fit < 20 ? "LVL 3 SWEAT PORE MATCH" : "CONTRAST TOO LOW";
+                window.dotWavelength = value;
+            }
+        }
+
+        // Sim Canvas Animations
+        function runToxicologySim(ctx) {
+            let offset = 0;
+            window.labInterval = setInterval(() => {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 75);
+                for(let x=0; x<ctx.canvas.width; x++) {
+                    const noise = Math.random() * 5;
+                    ctx.lineTo(x, 75 + Math.sin(x*0.1 + offset) * 30 + noise);
+                }
+                ctx.stroke();
+                offset += 0.2;
+            }, 50);
+        }
+
+        function runBallisticsSim(ctx) {
+            window.zeemanSplit = 50;
+            window.labInterval = setInterval(() => {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                const split = window.zeemanSplit / 2;
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 3;
+                // Double split lines
+                ctx.beginPath(); ctx.moveTo(50, 75 - split); ctx.lineTo(250, 75 - split); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(50, 75 + split); ctx.lineTo(250, 75 + split); ctx.stroke();
+                // Labels
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px mono';
+                ctx.fillText('UP SPIN ΔE', 200, 70 - split);
+                ctx.fillText('DOWN SPIN ΔE', 200, 95 + split);
+            }, 50);
+        }
+
+        function runPrintsSim(ctx) {
+            window.dotWavelength = 530;
+            window.labInterval = setInterval(() => {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                const wavelength = window.dotWavelength;
+                const brightness = Math.max(0, 1 - Math.abs(wavelength - 530)/100);
+                
+                // Draw a simple fingerprint pattern (abstract)
+                ctx.strokeStyle = `rgba(34, 197, 94, ${brightness})`;
+                ctx.lineWidth = 2;
+                for(let i=0; i<5; i++) {
+                    ctx.beginPath();
+                    ctx.arc(150, 75, 10 + i*15, 0, Math.PI, true);
+                    ctx.stroke();
+                }
+                // Background noise
+                ctx.fillStyle = `rgba(239, 68, 68, ${0.5 - brightness/2})`;
+                for(let j=0; j<20; j++) {
+                    ctx.fillRect(Math.random()*300, Math.random()*150, 2, 2);
+                }
+            }, 100);
+        }
+
+        // Benchmark Charts
+        function initBenchmarkCharts() {
+            // Sensitivity
+            new Chart(document.getElementById('sensitivityChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Classical (GC-MS)', 'Applied Quantum (AQS)'],
+                    datasets: [{
+                        label: 'Detectable Mass (grams)',
+                        data: [1e-6, 1e-12],
+                        backgroundColor: ['#64748b', '#d97706'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { type: 'logarithmic', min: 1e-13, max: 1e-5, title: { display: true, text: 'Grams (Log Scale)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Time
+            new Chart(document.getElementById('timeChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sample Prep', 'Lab Queue', 'Runtime', 'AQS Field ID'],
+                    datasets: [{
+                        data: [4, 12, 8, 0.01],
+                        backgroundColor: ['#1e293b', '#334155', '#475569', '#d97706'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
